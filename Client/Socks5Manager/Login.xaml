@@ -1,0 +1,120 @@
+﻿<Window x:Class="Socks5Manager.Login"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        xmlns:local="clr-namespace:Socks5Manager"
+        mc:Ignorable="d"
+        ResizeMode="CanResize"
+        Background="Transparent"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        Title="Login" Height="400" Width="800">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="3"/>
+    </WindowChrome.WindowChrome>
+
+    <behaviors:Interaction.Triggers>
+        <behaviors:EventTrigger EventName="Loaded">
+            <behaviors:InvokeCommandAction Command="{Binding LoadCommand}" CommandParameter="{Binding ElementName=pwd}"></behaviors:InvokeCommandAction>
+        </behaviors:EventTrigger>
+    </behaviors:Interaction.Triggers>
+
+    <Grid>
+        <Border Margin="5" Background="#2d2a2e" CornerRadius="5" BorderThickness="0">
+            <Border.Effect>
+                <DropShadowEffect Direction="0" ShadowDepth="0" BlurRadius="20" 
+                                  Opacity="0.25" Color="#FF5B5B5B"></DropShadowEffect>
+            </Border.Effect>
+        </Border>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="50"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid MouseMove="Border_MouseMove" Grid.ColumnSpan="2" Background="Transparent">
+                <TextBlock Text="Socks5ServerManager" 
+                           Foreground="Salmon"
+                           Grid.Column="0"
+                           Margin="12 8 0 0" 
+                           Cursor="Hand"
+                           Width="280"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Left"
+                           FontSize="25">
+                        <behaviors:Interaction.Triggers>
+                            <behaviors:EventTrigger EventName="MouseLeftButtonDown">
+                                <behaviors:InvokeCommandAction Command="{Binding ShiftMainPageCommand}"></behaviors:InvokeCommandAction>
+                            </behaviors:EventTrigger>
+                        </behaviors:Interaction.Triggers>
+                </TextBlock>
+                <Label BorderThickness="0"
+                       Cursor="Hand"
+                       ToolTip="最小化"
+                       Margin="0 7 45 0"
+                       Background="Transparent"
+                       HorizontalAlignment="Right" 
+                       MouseLeftButtonDown="Label_MouseLeftButtonDown">
+                    <Path Data="{StaticResource WindowMinGeometry}" 
+                          SnapsToDevicePixels="True"
+                          Height="15"
+                          Width="15"
+                          Stroke="{StaticResource PrimaryBrush}" Stretch="Uniform" 
+                          Fill="{StaticResource PrimaryBrush}"/>
+                </Label>
+                <Label BorderThickness="0"
+                       Cursor="Hand"
+                       ToolTip="关闭到托盘"
+                       Margin="0 7 2 0"
+                       Background="Transparent"
+                       HorizontalAlignment="Right" MouseLeftButtonDown="Label_MouseLeftButtonDown_1">
+                    <Path Data="{StaticResource CloseGeometry}" 
+                          SnapsToDevicePixels="True"
+                          Height="15"
+                          Stroke="{StaticResource PrimaryBrush}" Stretch="Uniform" 
+                          Fill="{StaticResource PrimaryBrush}"/>
+                </Label>
+            </Grid>
+            <Grid Grid.Row="1" Grid.Column="0">
+                <Image Margin="10 0 0 0" Source="https://api.dujin.org/bing/1920.php"  Stretch="UniformToFill"/>
+            </Grid>
+            <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
+                <TextBlock Text="登录" Foreground="Gray" FontSize="25" Margin="20 0 20 0"></TextBlock>
+                <hc:TextBox Style="{StaticResource TextBoxExtend}" 
+                            Height="40"
+                            FontSize="15"
+                            BorderThickness="0"
+                            Text="{Binding UserName,UpdateSourceTrigger=PropertyChanged}"
+                            Margin="20 60 20 20" hc:InfoElement.Placeholder="用户名"/>
+                <hc:PasswordBox Margin="20 10" 
+                                Height="40"
+                                Name="pwd"
+                                FontSize="15"
+                                BorderThickness="0"
+                                ShowEyeButton="True"
+                                hc:PasswordBoxAttach.IsMonitoring="True"
+                                hc:InfoElement.Placeholder="密码"/>
+
+                <Button Content="登录" 
+                        Cursor="Hand"
+                        IsDefault="True"
+                        Command="{Binding LoginCommandAsync}"
+                        CommandParameter="{Binding ElementName=pwd}"
+                        FontSize="15" Height="35"
+                        Style="{StaticResource ButtonDashedPrimary}" Width="350" Margin="20 20 20 0"></Button>
+            </StackPanel>
+
+            <Grid Grid.Row="2" Grid.ColumnSpan="2">
+                <TextBlock Foreground="Gray" VerticalAlignment="Center" HorizontalAlignment="Center" Text="版本v1.0.0.0"/>
+            </Grid>
+        </Grid>
+    </Grid>
+</Window>
