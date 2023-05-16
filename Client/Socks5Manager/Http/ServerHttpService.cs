@@ -27,11 +27,7 @@ namespace Socks5Manager.Http
 
         public async Task<HttpResponseMessage> PostAsync(string url, dynamic body)
         {
-            StringContent content = null;
-            if (body != null) 
-            {
-                content = new StringContent(JsonSerializer.Serialize(body));
-            }
+            var content = new StringContent(JsonSerializer.Serialize(body));
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             var resp = await _httpClient.PostAsync(url, content);
 

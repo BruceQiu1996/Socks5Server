@@ -20,6 +20,11 @@
             <behaviors:InvokeCommandAction Command="{Binding LoadCommandAsync}"></behaviors:InvokeCommandAction>
         </behaviors:EventTrigger>
     </behaviors:Interaction.Triggers>
+    <Window.Resources>
+        <ContextMenu x:Key="userOperation">
+            <MenuItem Header="编辑" Command="{Binding EditCommand}"></MenuItem>
+        </ContextMenu>
+    </Window.Resources>
     <Grid>
         <Border Margin="5" Background="#2d2a2e" CornerRadius="5" BorderThickness="0">
             <Border.Effect>
@@ -67,18 +72,129 @@
                 </Label>
             </Grid>
 
-            <Grid Grid.ColumnSpan="2" Grid.Row="1">
+            <Grid Grid.ColumnSpan="2" Grid.Row="1" Name="container">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="80"></RowDefinition>
+                    <RowDefinition Height="50"></RowDefinition>
+                    <RowDefinition Height="30"></RowDefinition>
                     <RowDefinition Height="*"></RowDefinition>
                 </Grid.RowDefinitions>
 
-                <Button Grid.Row="0" Content="添加账号" Style="{StaticResource ButtonDashedPrimary}"
-                        HorizontalAlignment="Right" Margin="0 0 50 0"/>
+                <Button Grid.Row="0" Content="添加账号" 
+                        Click="Button_Click"
+                        Cursor="Hand" Style="{StaticResource ButtonDashedPrimary}"
+                        HorizontalAlignment="Right" Margin="0 0 80 0" />
 
-                <ListBox Grid.Row="1">
-                    
-                </ListBox>
+                <Button Grid.Row="0" Content="刷新" Cursor="Hand" Style="{StaticResource ButtonInfo}"
+                        HorizontalAlignment="Right" Margin="0 0 20 0" Command="{Binding LoadCommandAsync}" />
+
+                <Grid Grid.Row="1" 
+                      Margin="10 0"
+                      Width="{Binding ElementName=table,Path=ActualWidth}"
+                      HorizontalAlignment="Center"
+                      Background="{StaticResource PrimaryBrush}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" 
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Center"
+                               Text="用户名"></TextBlock>
+
+                    <TextBlock Grid.Column="1" 
+                               VerticalAlignment="Center"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Text="过期时间"></TextBlock>
+                    <TextBlock Grid.Column="2" 
+                               HorizontalAlignment="Center"
+                               FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               Text="上传流量"></TextBlock>
+                    <TextBlock Grid.Column="3" 
+                               VerticalAlignment="Center"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Text="下载流量"></TextBlock>
+                </Grid>
+                <hc:Card BorderThickness="0" Grid.Row="2" Margin="8 0 8 0" Background="Transparent">
+                    <ListBox Background="Transparent" 
+                             BorderThickness="0" 
+                             Name="table"
+                             SelectedItem="{Binding User,UpdateSourceTrigger=PropertyChanged}"
+                             ItemsSource="{Binding Users,UpdateSourceTrigger=PropertyChanged}" 
+                             VerticalAlignment="Top">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Vertical"></StackPanel>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}">
+                                <Setter Property="OverridesDefaultStyle" Value="True" />
+                                <Setter Property="SnapsToDevicePixels" Value="True" />
+                                <Setter Property="FontSize" Value="15" />
+                                <Setter Property="Cursor" Value="Hand"></Setter>
+                                <Setter Property="Width" Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType=ListBox},Path=ActualWidth,Mode=OneWay}"></Setter>
+                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}"></Setter>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                            <Grid Height="30"
+                                                  ContextMenu="{StaticResource userOperation}"
+                                                  Width="{TemplateBinding Width}"
+                                                  HorizontalAlignment="Center"
+                                                  Background="{TemplateBinding Background}">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                                </Grid.ColumnDefinitions>
+                                                <Label BorderThickness="0"
+                                                       HorizontalAlignment="Center"
+                                                       Grid.Column="0"
+                                                       HorizontalContentAlignment="Center"
+                                                       Background="{TemplateBinding Background}"
+                                                       Foreground="{TemplateBinding Foreground}"
+                                                       Content="{Binding UserName,UpdateSourceTrigger=PropertyChanged}"></Label>
+
+                                                <TextBlock Grid.Column="1" 
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                           Text="{Binding ExpireTimeText,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                                <TextBlock Grid.Column="2" 
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"
+                                                           Text="{Binding UploadBytesText,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                                <TextBlock Grid.Column="3" 
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                           Text="{Binding DownloadBytesText,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Foreground" Value="White"></Setter>
+                                        <Setter Property="Background" Value="{StaticResource PrimaryBrush}"></Setter>
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="False">
+                                        <Setter Property="Foreground" Value="{DynamicResource DefaultFontColor}"></Setter>
+                                        <Setter Property="Background" Value="{DynamicResource DefaultCardBackgroundColor}"></Setter>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Foreground" Value="White"></Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                    </ListBox>
+                </hc:Card>
             </Grid>
         </Grid>
     </Grid>

@@ -9,10 +9,13 @@ namespace Socks5_Server.Services
     {
         string UserLogin(User user);
         Task<User> FindSingleUserByUserName(string userName);
+        Task<User> FindSingleUserByUserId(string userId);
         Task<User> FindSingleUserByUserNameAndPasswordAsync(string userName, string password);
         Task CreateUserAsync(UserCreationDto creationDto);
         Task<User> DeleteUserAsync(string userId);
         Task<User> UpdateUserAsync(UserUpdateDto updateDto);
         Task<IEnumerable<UserDto>> GetUsersAsync();
+        Task BatchUpdateUserAsync(IEnumerable<User> users);
+        Task<IEnumerable<User>> GetUsersInNamesAsync(IEnumerable<string> names);
     }
 }

@@ -1,20 +1,10 @@
-﻿using HandyControl.Themes;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Socks5Manager.Http;
 using Socks5Manager.ViewModels;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
 
 namespace Socks5Manager
 {
@@ -32,7 +22,7 @@ namespace Socks5Manager
             var hostbuilder = CreateHostBuilder(e.Args);
             var host = await hostbuilder.StartAsync();
             ServiceProvider = host.Services;
-            host.Services.GetRequiredService<Login>()?.Show();
+            host.Services.GetRequiredService<MainWindow>()?.Show();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)
@@ -49,6 +39,10 @@ namespace Socks5Manager
                 services.AddSingleton<MainWindowViewModel>();
                 services.AddSingleton<Login>();
                 services.AddSingleton<LoginViewModel>();
+                services.AddTransient<EditWindow>();
+                services.AddTransient<EditWindowViewModel>();
+                services.AddTransient<AddWindow>();
+                services.AddTransient<AddWindowViewModel>();
             });
 
             return hostBuilder;

@@ -1,0 +1,70 @@
+﻿<Window x:Class="Socks5Manager.AddWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        mc:Ignorable="d"
+        ResizeMode="CanResize"
+        Background="Transparent"
+        AllowsTransparency="True"
+        WindowStyle="None"
+        Height="300" Width="400">
+
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="3"/>
+    </WindowChrome.WindowChrome>
+    
+    <Grid>
+        <Border Margin="5" Background="#2d2a2e" CornerRadius="5" BorderThickness="0">
+            <Border.Effect>
+                <DropShadowEffect Direction="0" ShadowDepth="0" BlurRadius="20" 
+                                  Opacity="0.25" Color="#FF5B5B5B"></DropShadowEffect>
+            </Border.Effect>
+        </Border>
+
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="45"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="50"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid MouseMove="Border_MouseMove" Grid.ColumnSpan="2" Background="Transparent">
+                <Label BorderThickness="0"
+                       Cursor="Hand"
+                       ToolTip="关闭到托盘"
+                       Margin="0 7 2 0"
+                       Background="Transparent"
+                       HorizontalAlignment="Right" MouseLeftButtonDown="Label_MouseLeftButtonDown_1">
+                    <Path Data="{StaticResource CloseGeometry}" 
+                          SnapsToDevicePixels="True"
+                          Height="15"
+                          Stroke="{StaticResource PrimaryBrush}" Stretch="Uniform" 
+                          Fill="{StaticResource PrimaryBrush}"/>
+                </Label>
+            </Grid>
+            <StackPanel Orientation="Vertical" Grid.Row="1" HorizontalAlignment="Center">
+                <TextBox hc:InfoElement.Placeholder="用户名" 
+                         Margin="0 10 0 0"
+                         Width="280"
+                         Style="{StaticResource TextBoxExtend}"
+                         Text="{Binding UserName,UpdateSourceTrigger=PropertyChanged}"></TextBox>
+
+                <TextBox hc:InfoElement.Placeholder="用户密码" 
+                         Margin="0 10 0 0"
+                         Style="{StaticResource TextBoxExtend}"
+                         Text="{Binding Password}"></TextBox>
+
+                <DatePicker hc:InfoElement.Placeholder="过期时间"
+                            hc:TitleElement.TitlePlacement="Left"
+                            Margin="0 10 0 0"
+                            SelectedDate="{Binding ExpireTime}"
+                            Style="{StaticResource DatePickerExtend}"></DatePicker>
+
+                <Button Content="提交" Margin="0 20 0 0" Style="{StaticResource ButtonPrimary}"
+                        Width="120" Cursor="Hand" Command="{Binding AddCommandAsync}"></Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

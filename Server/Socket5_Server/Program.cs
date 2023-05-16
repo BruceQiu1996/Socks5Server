@@ -63,6 +63,7 @@ namespace Socks5_Server
                 services.AddEndpointsApiExplorer();
                 services.AddSwaggerGen();
                 services.AddSocks5();
+                services.AddLazyResolution();
             });
 
             return hostBuilder;

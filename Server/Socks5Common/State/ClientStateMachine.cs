@@ -50,6 +50,8 @@ namespace Socks5Common.State
                 .On(ClientStateEvents.OnException)
                 .Goto(ClientState.Death);
 
+            builder.In(ClientState.Connected).On(ClientStateEvents.OnException).Goto(ClientState.Death);
+
             _currentState = ClientState.Normal;
             builder.WithInitialState(ClientState.Normal);
             _machine = builder.Build().CreatePassiveStateMachine();
@@ -64,7 +66,6 @@ namespace Socks5Common.State
             {
                 _logger.LogError(e.Exception.ToString());
                 await _machine.Fire(ClientStateEvents.OnException);
-                _currentState = ClientState.Death;
             };
         }
 
@@ -91,6 +92,11 @@ namespace Socks5Common.State
         public async Task CertifiedGoConnected(UserToken userToken)
         {
             await _machine.Fire(ClientStateEvents.OnRevRequestProxy, userToken);
+        }
+
+        public async Task FireException()
+        {
+            await _machine.Fire(ClientStateEvents.OnException);
         }
     }
 }

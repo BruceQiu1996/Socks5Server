@@ -44,12 +44,12 @@
                 <TextBlock Text="Socks5ServerManager" 
                            Foreground="Salmon"
                            Grid.Column="0"
-                           Margin="12 8 0 0" 
+                           Margin="12 10 0 0" 
                            Cursor="Hand"
                            Width="280"
                            FontWeight="Bold"
                            HorizontalAlignment="Left"
-                           FontSize="25">
+                           FontSize="20">
                         <behaviors:Interaction.Triggers>
                             <behaviors:EventTrigger EventName="MouseLeftButtonDown">
                                 <behaviors:InvokeCommandAction Command="{Binding ShiftMainPageCommand}"></behaviors:InvokeCommandAction>

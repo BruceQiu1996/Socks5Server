@@ -137,17 +137,24 @@ namespace Socks5_Server
                 token.ServerSocket.ConnectAsync(e);
                 e.Completed += async (e, a) =>
                 {
-                    token.ServerBuffer = new byte[800 * 1024];//800kb
-                    token.StartTcpProxy();
-                    var datas = new List<byte> { 0x05, 0x0, 0, (byte)Socks5AddressType.IPV4 };
-                    foreach (var add in (token.ServerSocket.LocalEndPoint as IPEndPoint).Address.GetAddressBytes())
+                    try
                     {
-                        datas.Add(add);
-                    }
-                    //代理端启动的端口信息回复给客户端
-                    datas.AddRange(BitConverter.GetBytes((token.ServerSocket.LocalEndPoint as IPEndPoint).Port).Take(2).Reverse());
+                        token.ServerBuffer = new byte[800 * 1024];//800kb
+                        token.StartTcpProxy();
+                        var datas = new List<byte> { 0x05, 0x0, 0, (byte)Socks5AddressType.IPV4 };
+                        foreach (var add in (token.ServerSocket.LocalEndPoint as IPEndPoint).Address.GetAddressBytes())
+                        {
+                            datas.Add(add);
+                        }
+                        //代理端启动的端口信息回复给客户端
+                        datas.AddRange(BitConverter.GetBytes((token.ServerSocket.LocalEndPoint as IPEndPoint).Port).Take(2).Reverse());
 
-                    await token.ClientSocket.SendAsync(datas.ToArray());
+                        await token.ClientSocket.SendAsync(datas.ToArray());
+                    }
+                    catch (Exception) 
+                    {
+                        token.Dispose();
+                    }
                 };
             }
             else if (socks5CommandType == Socks5CommandType.Udp)//udp
@@ -157,8 +164,10 @@ namespace Socks5_Server
                 token.ServerSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
                 token.ServerSocket.Bind(new IPEndPoint(IPAddress.Any, 0));
                 token.ServerBuffer = new byte[800 * 1024];//800kb
-                token.StartUdpProxy();
-                await token.ClientSocket.SendAsync(new byte[] { 0x05, 0x0, 0, (byte)Socks5AddressType.IPV4, 0, 0, 0, 0, serverPort[1], serverPort[0] });
+                token.StartUdpProxy(_byteUtil);
+                var addressBytes = (token.ServerSocket.LocalEndPoint as IPEndPoint).Address.GetAddressBytes();
+                var portBytes = BitConverter.GetBytes((token.ServerSocket.LocalEndPoint as IPEndPoint).Port).Take(2).Reverse().ToArray();
+                await token.ClientSocket.SendAsync(new byte[] { 0x05, 0x0, 0, (byte)Socks5AddressType.IPV4, addressBytes[0], addressBytes[1], addressBytes[2], addressBytes[3], portBytes[0], portBytes[1] });
             }
             else
             {

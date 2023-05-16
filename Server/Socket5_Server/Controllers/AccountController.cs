@@ -51,7 +51,7 @@ namespace Socks5_Server.Controllers
         }
 
         [HttpGet("accounts")]
-        [Authorize(Roles = nameof(Role.Admin))]
+        //[Authorize(Roles = nameof(Role.Admin))]
         public async Task<ActionResult> Get()
         {
             try
@@ -67,7 +67,7 @@ namespace Socks5_Server.Controllers
         }
 
         [HttpPost()]
-        [Authorize(Roles = nameof(Role.Admin))]
+        //[Authorize(Roles = nameof(Role.Admin))]
         public async Task<ActionResult> Create([FromBody] UserCreationDto dto)
         {
             if (!ModelState.IsValid)
@@ -112,17 +112,19 @@ namespace Socks5_Server.Controllers
         }
 
         [HttpPut()]
-        [Authorize(Roles = nameof(Role.Admin))]
+        //[Authorize(Roles = nameof(Role.Admin))]
         public async Task<ActionResult> Update([FromBody] UserUpdateDto updateDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest("数据存在错误");
             try
             {
+                var oldUser = await _userService.FindSingleUserByUserId(updateDto.UserId);
                 var user = await _userService.UpdateUserAsync(updateDto);
                 if (user != null)
                 {
                     //TODO更新目前已连线的用户
+                    _clientConnectionManager.UpdateUserInfo(user);
                 }
 
                 return Ok();

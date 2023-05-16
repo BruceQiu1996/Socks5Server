@@ -30,6 +30,24 @@ namespace Socks5_Server.Services
             _clientConnectionManager = clientConnectionManager;
         }
 
+        public async Task BatchUpdateUserAsync(IEnumerable<User> users)
+        {
+            using (var context = _dbContextFactory.CreateDbContext())
+            {
+                context.Users.UpdateRange(users);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task BatchUpdateUserFlowrateAsync(IEnumerable<User> users)
+        {
+            using (var context = _dbContextFactory.CreateDbContext())
+            {
+                context.Users.UpdateRange(users);
+                await context.SaveChangesAsync();
+            }
+        }
+
         public async Task CreateUserAsync(UserCreationDto creationDto)
         {
             using (var context = _dbContextFactory.CreateDbContext())
@@ -60,6 +78,14 @@ namespace Socks5_Server.Services
                 }
 
                 return null;
+            }
+        }
+
+        public async Task<User> FindSingleUserByUserId(string userId)
+        {
+            using (var context = _dbContextFactory.CreateDbContext())
+            {
+                return await context.Users.FirstOrDefaultAsync(x => x.Id == userId);
             }
         }
 
@@ -98,12 +124,22 @@ namespace Socks5_Server.Services
                         token.IsOnline = true;
                     }
 
-                    token.UploadBytes = x.UploadBytes + clients.Sum(x => x.UploadBytes);
-                    token.DownloadBytes = x.DownloadBytes + clients.Sum(x => x.DownloadBytes);
+                    var flowrate = _clientConnectionManager.GetImmediateFlowrateByUserName(x.UserName);
+                    token.UploadBytes = x.UploadBytes + flowrate.Item1;
+                    token.DownloadBytes = x.DownloadBytes + flowrate.Item2;
+
                     userDtos.Add(token);
                 });
 
                 return userDtos;
+            }
+        }
+
+        public async Task<IEnumerable<User>> GetUsersInNamesAsync(IEnumerable<string> names)
+        {
+            using (var context = _dbContextFactory.CreateDbContext())
+            {
+                return await context.Users.Where(x => names.Contains(x.UserName)).ToListAsync();
             }
         }
 
@@ -115,7 +151,10 @@ namespace Socks5_Server.Services
                 if (user != null)
                 {
                     user.ExpireTime = updateDto.ExpireTime;
-                    user.Password = updateDto.Password;
+                    if (!string.IsNullOrEmpty(updateDto.Password))
+                    {
+                        user.Password = updateDto.Password;
+                    }
                     context.Users.Update(user);
                     await context.SaveChangesAsync();
 

@@ -1,4 +1,5 @@
-﻿using Socks5Manager.ViewModels;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Socks5Manager.ViewModels;
 using System;
 using System.Windows;
 
@@ -29,6 +30,15 @@ namespace Socks5Manager
         private void Label_MouseLeftButtonDown_1(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             Environment.Exit(0);
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var add = App.ServiceProvider.GetRequiredService<AddWindow>();
+            var vm = App.ServiceProvider.GetRequiredService<AddWindowViewModel>();
+            vm.ExpireTime = DateTime.Now;
+            add.DataContext = vm;
+            add.ShowDialog();
         }
     }
 }

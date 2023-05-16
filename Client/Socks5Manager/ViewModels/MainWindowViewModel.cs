@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Extensions.Logging;
 using Socks5Manager.Http;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -18,11 +20,21 @@ namespace Socks5Manager.ViewModels
             set => SetProperty(ref users, value);
         }
 
+        private UserItemViewModel user;
+        public UserItemViewModel User
+        {
+            get => user;
+            set => SetProperty(ref user, value);
+        }
+
         public AsyncRelayCommand LoadCommandAsync { get; set; }
 
         private readonly ServerHttpService _serverHttpService;
-        public MainWindowViewModel(ServerHttpService serverHttpService)
+        private readonly ILogger<MainWindowViewModel> _logger;
+
+        public MainWindowViewModel(ServerHttpService serverHttpService, ILogger<MainWindowViewModel> logger)
         {
+            _logger = logger;
             _serverHttpService = serverHttpService;
             LoadCommandAsync = new AsyncRelayCommand(LoadAsync);
             Users = new ObservableCollection<UserItemViewModel>();
@@ -31,13 +43,23 @@ namespace Socks5Manager.ViewModels
         private async Task LoadAsync()
         {
             Users.Clear();
-            var resp = await _serverHttpService.GetAsync("account/accounts");
-            if (resp.IsSuccessStatusCode)
+            User = null;
+            try
             {
-                var users = JsonSerializer.Deserialize<IEnumerable<UserItemViewModel>>(await resp.Content.ReadAsStringAsync());
-
-                users.OrderByDescending(x => x.IsOnline).ToList().ForEach(x => Users.Add(x));
-
+                var resp = await _serverHttpService.GetAsync("account/accounts");
+                if (resp.IsSuccessStatusCode)
+                {
+                    var users =
+                        JsonSerializer.Deserialize<IEnumerable<UserItemViewModel>>(await resp.Content.ReadAsStringAsync(), new JsonSerializerOptions()
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+                    users.OrderByDescending(x => x.IsOnline).ToList().ForEach(x => Users.Add(x));
+                }
+            }
+            catch (Exception ex) 
+            {
+                _logger.LogError(ex.ToString());
             }
         }
     }

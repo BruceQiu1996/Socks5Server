@@ -77,7 +77,7 @@ namespace Socks5_Server
                         int length = await client.ReceiveAsync(token.ClientBuffer);
                         if (length == 0) //收到长度为0的数据包，一般表示客户端将要断开
                         {
-                            throw new SocketException();
+                            throw new Exception("收到socket断开数据包");
                         }
 
                         token.ClientData = token.ClientBuffer.AsMemory(0, length);
@@ -99,15 +99,11 @@ namespace Socks5_Server
                                 break;
                         }
                     }
-                    catch (SocketException)
+                    catch (Exception)
                     {
                         token.Dispose();
                         _clientConnectionManager.RemoveClient(token);
                         break;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError($"{nameof(ProcessReceiveClient)}|{ex}");
                     }
                 }
             }
@@ -121,16 +117,9 @@ namespace Socks5_Server
         /// <param name="token"></param>
         private async Task ForwardAsync(UserToken token)
         {
-            try
+            if (token.ClientStateMachine.GetState() == ClientState.Connected)
             {
-                if (token.ClientStateMachine.GetState() == ClientState.Connected)
-                {
-                    await token.ServerSocket.SendAsync(token.ClientData, SocketFlags.None);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{nameof(ForwardAsync)}|{ex}");
+                await token.ForwardTcpAsync();
             }
         }
 
@@ -165,7 +154,7 @@ namespace Socks5_Server
                                 break;
                         }
 
-                        await client.SendToTargetByUdpAsync(data.Slice(header_len), new IPEndPoint(proxyInfo.Item2, proxyInfo.Item3));
+                        await client.ForwardUdpAsync(data.Slice(header_len), new IPEndPoint(proxyInfo.Item2, proxyInfo.Item3));
                     }
                 }
             });
