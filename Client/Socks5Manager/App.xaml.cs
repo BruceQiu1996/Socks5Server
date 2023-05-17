@@ -22,7 +22,7 @@ namespace Socks5Manager
             var hostbuilder = CreateHostBuilder(e.Args);
             var host = await hostbuilder.StartAsync();
             ServiceProvider = host.Services;
-            host.Services.GetRequiredService<MainWindow>()?.Show();
+            host.Services.GetRequiredService<Login>()?.Show();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args)
