@@ -16,7 +16,6 @@ namespace Socks5_Server
     public class Socks5ProxyService : BackgroundService
     {
         Socket _tcpSocket;
-        Socket _udpSocket;//udp转发数据
         private readonly ILogger<Socks5ProxyService> _logger;
         private readonly ServerConfiguration _serverConfiguration;
         private readonly Socks5ByteUtil _byteUtil;
@@ -44,12 +43,6 @@ namespace Socks5_Server
             _tcpSocket = new Socket(ep.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             _tcpSocket.Bind(ep);
             _tcpSocket.Listen();
-            if (_serverConfiguration.SupportUpd)
-            {
-                _udpSocket = new Socket(ep.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-                _udpSocket.Bind(ep);
-                UdpReceiveProcessAsync();
-            }
             while (true)
             {
                 Socket client = await _tcpSocket.AcceptAsync();
@@ -121,43 +114,6 @@ namespace Socks5_Server
             {
                 await token.ForwardTcpAsync();
             }
-        }
-
-        /// <summary>
-        /// 开启udp循环接收数据
-        /// </summary>
-        private void UdpReceiveProcessAsync()
-        {
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    EndPoint point = new IPEndPoint(IPAddress.Any, 0);//用来保存发送方的ip和端口号
-                    Memory<byte> buffer = new byte[1024 * 8];
-                    var result = await _udpSocket.ReceiveFromAsync(buffer, point);
-                    var data = buffer.Slice(0, result.ReceivedBytes);
-                    var client = _clientConnectionManager.FindFirstOrDefault(c => c.ClientSocket.RemoteEndPoint.Equals(point) && c.ClientSocket.ProtocolType == ProtocolType.Udp);
-                    int header_len = 0;
-                    if (client != null && client.ClientStateMachine.GetState() == ClientState.Connected && client.IsSupportUdp)
-                    {
-                        var proxyInfo = _byteUtil.GetProxyInfo(data.Slice(2));
-                        switch (proxyInfo.Item1)
-                        {
-                            case Socks5AddressType.IPV4://IPV4
-                                header_len = 10;
-                                break;
-                            case Socks5AddressType.Domain://域名
-                                header_len = 7 + data.Span[4];
-                                break;
-                            case Socks5AddressType.IPV6://IPV6
-                                header_len = 22;
-                                break;
-                        }
-
-                        await client.ForwardUdpAsync(data.Slice(header_len), new IPEndPoint(proxyInfo.Item2, proxyInfo.Item3));
-                    }
-                }
-            });
         }
     }
 }

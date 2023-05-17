@@ -118,7 +118,7 @@ namespace Socks5_Server.Services
                     token.ExpireTime = x.ExpireTime;
                     token.UserId = x.Id;
 
-                    var clients = _clientConnectionManager.Where(x => x.UserName == x.UserName);
+                    var clients = _clientConnectionManager.Where(z => z.UserName == x.UserName);
                     if (clients.Count() > 0)
                     {
                         token.IsOnline = true;

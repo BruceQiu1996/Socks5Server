@@ -41,8 +41,7 @@ namespace Socks5_Server
                     if (ClientStateMachine?.GetState() == ClientState.Connected && IsSupportUdp)
                     {
                         EndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
-                        var result = ServerSocket.ReceiveFrom(ServerBuffer, ref endPoint);
-                        var dataLength = result;
+                        var dataLength = ServerSocket.ReceiveFrom(ServerBuffer, ref endPoint);
                         if (dataLength == 0)
                         {
                             Dispose();
@@ -136,6 +135,7 @@ namespace Socks5_Server
                 ExcuteAfterUploadBytes?.Invoke(UserName, ClientData.Length);
         }
 
+        //更新密码或者过期时间后
         public void UpdateUserPasswordAndExpireTime(string password, DateTime dateTime)
         {
             if (password != Password)

@@ -13,6 +13,7 @@ namespace Socks5Manager.ViewModels
         public string UserId { get; set; }
         public string UserName { get; set; }
         public bool IsOnline { get; set; }
+        public string IsOnlineText => IsOnline ? "在线" : "不在线";
         public long UploadBytes { get; set; }
         public long DownloadBytes { get; set; }
         public DateTime ExpireTime { get; set; }

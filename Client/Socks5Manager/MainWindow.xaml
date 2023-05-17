@@ -97,6 +97,7 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
                         <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" 
                                FontWeight="Bold"
@@ -119,6 +120,11 @@
                                FontWeight="Bold"
                                HorizontalAlignment="Center"
                                Text="下载流量"></TextBlock>
+                    <TextBlock Grid.Column="4" 
+                               VerticalAlignment="Center"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Text="是否在线"></TextBlock>
                 </Grid>
                 <hc:Card BorderThickness="0" Grid.Row="2" Margin="8 0 8 0" Background="Transparent">
                     <ListBox Background="Transparent" 
@@ -153,6 +159,7 @@
                                                     <ColumnDefinition Width="*"></ColumnDefinition>
                                                     <ColumnDefinition Width="*"></ColumnDefinition>
                                                     <ColumnDefinition Width="*"></ColumnDefinition>
+                                                    <ColumnDefinition Width="*"></ColumnDefinition>
                                                 </Grid.ColumnDefinitions>
                                                 <Label BorderThickness="0"
                                                        HorizontalAlignment="Center"
@@ -174,6 +181,10 @@
                                                            VerticalAlignment="Center"
                                                            HorizontalAlignment="Center"
                                                            Text="{Binding DownloadBytesText,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
+                                                <TextBlock Grid.Column="4" 
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                           Text="{Binding IsOnlineText,UpdateSourceTrigger=PropertyChanged}"></TextBlock>
                                             </Grid>
                                         </ControlTemplate>
                                     </Setter.Value>
