@@ -15,6 +15,7 @@ namespace Socks5Client
     {
         internal static IServiceProvider? ServiceProvider;
         internal static IHost host;
+        internal static SettingsModel SettingsModel;
         protected async override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -27,11 +28,14 @@ namespace Socks5Client
                 service.AddSingleton<MainWindowViewModel>();
 
                 service.AddSingleton<MainPage>();
+                service.AddSingleton<MainPageViewModel>();
                 service.AddSingleton<SettingsPage>();
+                service.AddSingleton<SettingsPageViewModel>();
             });
 
             host = builder.Build();
             ServiceProvider = host.Services;
+            SettingsModel = new SettingsModel(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.ini"));
             await host.StartAsync();
             host.Services.GetRequiredService<MainWindow>().Show();
         }

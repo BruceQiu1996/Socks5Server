@@ -4,28 +4,41 @@ using System.Text;
 
 public class HttpToSocks5Proxy
 {
-    private readonly string _socks5Host;
-    private readonly int _socks5Port;
-    private readonly int _httpProxyPort;
+    private string _socks5Host;
+    private int _socks5Port;
+    private int _httpProxyPort;
+    private string _httpProxyUsername;
+    private string _httpProxyPassword;
 
-    public HttpToSocks5Proxy(string socks5Host, int socks5Port, int httpProxyPort = 8080)
+
+    private CancellationTokenSource cancellationTokenSource;
+    private TcpListener _tcpListener;
+    public void Start(string socks5Host, int socks5Port, string username, string password, int httpProxyPort = 8080)
     {
         _socks5Host = socks5Host;
         _socks5Port = socks5Port;
         _httpProxyPort = httpProxyPort;
+        _httpProxyUsername = username;
+        _httpProxyPassword = password;
+
+        _tcpListener = new TcpListener(IPAddress.Any, _httpProxyPort);
+        _tcpListener.Start();
+        cancellationTokenSource = new CancellationTokenSource();
+        var _ = Task.Run(async () =>
+        {
+            while (!cancellationTokenSource.IsCancellationRequested)
+            {
+                var client = await _tcpListener.AcceptTcpClientAsync();
+                HandleClientAsync(client); // 异步处理客户端请求
+            }
+        }, cancellationTokenSource.Token);
     }
 
-    public async Task StartAsync()
+    public void Stop()
     {
-        var listener = new TcpListener(IPAddress.Any, _httpProxyPort);
-        listener.Start();
-        Console.WriteLine($"HTTP 代理服务器已启动，监听端口: {_httpProxyPort}");
-
-        while (true)
-        {
-            var client = await listener.AcceptTcpClientAsync();
-            _ = HandleClientAsync(client); // 异步处理客户端请求
-        }
+        cancellationTokenSource?.Cancel();
+        _tcpListener?.Stop();
+        _tcpListener?.Dispose();
     }
 
     private async Task HandleClientAsync(TcpClient httpClient)
@@ -54,8 +67,8 @@ public class HttpToSocks5Proxy
                     var socks5Stream = socks5Client.GetStream();
 
                     // 4. 发送 SOCKS5 握手 + 连接请求
-                    await PerformSocks5Handshake(socks5Stream, targetHost, targetPort);
-
+                    //await PerformSocks5Handshake(socks5Stream, targetHost, targetPort);
+                    await PerformSocks5Handshake(socks5Stream, targetHost, targetPort, _httpProxyUsername, _httpProxyPassword);
                     // 5. 返回 HTTP 200 表示代理成功（如果是 CONNECT 请求）
                     if (request.StartsWith("CONNECT"))
                     {
@@ -76,66 +89,14 @@ public class HttpToSocks5Proxy
         }
     }
 
-    private bool TryParseHttpRequest(string request, out string host, out int port)
-    {
-        host = null;
-        port = 0;
-
-        // 解析 CONNECT 请求（如 CONNECT example.com:443 HTTP/1.1）
-        if (request.StartsWith("CONNECT"))
-        {
-            var parts = request.Split(' ')[1].Split(':');
-            host = parts[0];
-            port = int.Parse(parts[1]);
-            return true;
-        }
-
-        // TODO: 解析 GET/POST 请求（需处理 Host 头）
-        return false;
-    }
-
     /// <summary>
-    /// 无须认证
+    /// 带有身份验证的登录
     /// </summary>
     /// <param name="socks5Stream"></param>
     /// <param name="targetHost"></param>
     /// <param name="targetPort"></param>
-    /// <returns></returns>
-    /// <exception cref="Exception"></exception>
-    private async Task PerformSocks5Handshake(NetworkStream socks5Stream, string targetHost, int targetPort)
-    {
-        // 1. SOCKS5 握手（无认证）
-        var handshake = new byte[] { 0x05, 0x01, 0x00 };
-        await socks5Stream.WriteAsync(handshake, 0, handshake.Length);
-
-        var handshakeResponse = new byte[2];
-        await socks5Stream.ReadAsync(handshakeResponse, 0, 2);
-
-        // 2. 发送 SOCKS5 连接请求
-        var request = new byte[7 + targetHost.Length];
-        request[0] = 0x05; // VER
-        request[1] = 0x01; // CMD=CONNECT
-        request[2] = 0x00; // RSV
-        request[3] = 0x03; // ATYP=域名
-        request[4] = (byte)targetHost.Length;
-        Encoding.ASCII.GetBytes(targetHost).CopyTo(request, 5);
-        BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)targetPort)).CopyTo(request, 5 + targetHost.Length);
-
-        await socks5Stream.WriteAsync(request, 0, request.Length);
-
-        // 3. 读取 SOCKS5 响应
-        var response = new byte[10];
-        await socks5Stream.ReadAsync(response, 0, 10);
-        if (response[1] != 0x00)
-            throw new Exception($"SOCKS5 连接失败 (状态码: {response[1]})");
-    }
-
-    /// <summary>
-    /// 带用户名密码认证
-    /// </summary>
-    /// <param name="socks5Stream"></param>
-    /// <param name="targetHost"></param>
-    /// <param name="targetPort"></param>
+    /// <param name="username"></param>
+    /// <param name="password"></param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
     private async Task PerformSocks5Handshake(NetworkStream socks5Stream,
@@ -194,6 +155,53 @@ public class HttpToSocks5Proxy
         if (response[1] != 0x00)
             throw new Exception($"SOCKS5连接失败 (状态码: {response[1]})");
     }
+
+    private async Task PerformSocks5Handshake(NetworkStream socks5Stream, string targetHost, int targetPort)
+    {
+        // 1. SOCKS5 握手（无认证）
+        var handshake = new byte[] { 0x05, 0x01, 0x00 };
+        await socks5Stream.WriteAsync(handshake, 0, handshake.Length);
+
+        var handshakeResponse = new byte[2];
+        await socks5Stream.ReadAsync(handshakeResponse, 0, 2);
+
+        // 2. 发送 SOCKS5 连接请求
+        var request = new byte[7 + targetHost.Length];
+        request[0] = 0x05; // VER
+        request[1] = 0x01; // CMD=CONNECT
+        request[2] = 0x00; // RSV
+        request[3] = 0x03; // ATYP=域名
+        request[4] = (byte)targetHost.Length;
+        Encoding.ASCII.GetBytes(targetHost).CopyTo(request, 5);
+        BitConverter.GetBytes(IPAddress.HostToNetworkOrder((short)targetPort)).CopyTo(request, 5 + targetHost.Length);
+
+        await socks5Stream.WriteAsync(request, 0, request.Length);
+
+        // 3. 读取 SOCKS5 响应
+        var response = new byte[10];
+        await socks5Stream.ReadAsync(response, 0, 10);
+        if (response[1] != 0x00)
+            throw new Exception($"SOCKS5 连接失败 (状态码: {response[1]})");
+    }
+
+    private bool TryParseHttpRequest(string request, out string host, out int port)
+    {
+        host = null;
+        port = 0;
+
+        // 解析 CONNECT 请求（如 CONNECT example.com:443 HTTP/1.1）
+        if (request.StartsWith("CONNECT"))
+        {
+            var parts = request.Split(' ')[1].Split(':');
+            host = parts[0];
+            port = int.Parse(parts[1]);
+            return true;
+        }
+
+        // TODO: 解析 GET/POST 请求（需处理 Host 头）
+        return false;
+    }
+
 
     private async Task SendHttpResponse(NetworkStream stream, int statusCode, string message)
     {

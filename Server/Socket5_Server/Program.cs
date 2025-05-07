@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -66,6 +67,7 @@ namespace Socks5_Server
                 services.AddLazyResolution();
             });
 
+            hostBuilder.WebHost.UseUrls("http://*:5000");
             return hostBuilder;
         }
 

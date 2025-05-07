@@ -18,6 +18,7 @@ namespace Socks5Client.ViewModels
         private readonly SettingsPage _settingsPage;
 
         public RelayCommand OpenSettingsPageCommand { get; set; }
+        public RelayCommand OpenMainPageCommand { get; set; }
         public MainWindowViewModel(MainPage mainPage,SettingsPage settingsPage)
         {
             _settingsPage = settingsPage;
@@ -26,6 +27,10 @@ namespace Socks5Client.ViewModels
             OpenSettingsPageCommand = new RelayCommand(() =>
             {
                 CurrentPage = _settingsPage;
+            });
+            OpenMainPageCommand = new RelayCommand(() =>
+            {
+                CurrentPage = _mainPage;
             });
         }
     }

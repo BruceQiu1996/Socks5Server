@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Socks5_Server.Dtos;
 using Socks5_Server.Models;
 using Socks5_Server.Services;
 using System;
+using System.Collections.Concurrent;
+using System.IO;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Socks5_Server.Controllers
@@ -128,6 +132,25 @@ namespace Socks5_Server.Controllers
                 }
 
                 return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                return Problem();
+            }
+        }
+
+        [AllowAnonymous]
+        [HttpGet("flow/{username}")]
+        public async Task<ActionResult> Flow(string username)
+        {
+            try
+            {
+                var user = await _userService.FindSingleUserByUserName(username);
+                if (user == null)
+                    return NotFound();
+
+                return Ok(user);
             }
             catch (Exception ex)
             {

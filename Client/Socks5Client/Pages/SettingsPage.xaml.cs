@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using Socks5Client.ViewModels;
+using System.Windows.Controls;
 
 namespace Socks5Client.Pages
 {
@@ -7,9 +8,10 @@ namespace Socks5Client.Pages
     /// </summary>
     public partial class SettingsPage : Page
     {
-        public SettingsPage()
+        public SettingsPage(SettingsPageViewModel settingsPageViewModel)
         {
             InitializeComponent();
+            DataContext = settingsPageViewModel;
         }
     }
 }

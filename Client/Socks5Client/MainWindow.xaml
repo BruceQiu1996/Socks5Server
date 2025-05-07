@@ -8,7 +8,7 @@
         xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         Style="{StaticResource for_noresize_window}"
-        Title="MainWindow" Height="350" Width="650">
+        Title="MainWindow" Height="300" Width="550">
     <Grid>
         <Border Margin="5" Background="{DynamicResource DefaultBackgroundColor}" CornerRadius="5" Name="render">
             <Border.Effect>
@@ -31,6 +31,11 @@
                            HorizontalAlignment="Left"
                            Cursor="Hand"
                            ToolTip="Socks5Client">
+                     <behaviors:Interaction.Triggers>
+                        <behaviors:EventTrigger EventName="MouseLeftButtonDown">
+                            <behaviors:InvokeCommandAction Command="{Binding OpenMainPageCommand}"></behaviors:InvokeCommandAction>
+                        </behaviors:EventTrigger>
+                    </behaviors:Interaction.Triggers>
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
                             <Style.Triggers>
@@ -85,7 +90,7 @@
                 </Label>
             </Grid>
 
-            <Frame Grid.Column="1" Grid.Row="1" BorderThickness="0 0 0 0" Content="{Binding CurrentPage}">
+            <Frame Grid.Column="1" Grid.Row="1" BorderThickness="0 0 0 0" NavigationUIVisibility="Hidden" Content="{Binding CurrentPage}">
 
             </Frame>
         </Grid>

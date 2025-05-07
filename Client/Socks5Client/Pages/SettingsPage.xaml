@@ -6,9 +6,22 @@
       xmlns:local="clr-namespace:Socks5Client.Pages"
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
       Title="SettingsPage">
+    <behaviors:Interaction.Triggers>
+        <behaviors:EventTrigger EventName="Loaded">
+            <behaviors:InvokeCommandAction Command="{Binding LoadedCommand}" CommandParameter="{Binding ElementName=pwd}"></behaviors:InvokeCommandAction>
+        </behaviors:EventTrigger>
+    </behaviors:Interaction.Triggers>
+    <StackPanel>
+        <hc:TextBox Margin="5 20 5 5" hc:InfoElement.Placeholder="服务器IP" Text="{Binding Socks5Host,UpdateSourceTrigger=PropertyChanged}"/>
+        <hc:NumericUpDown Margin="5" Minimum="0" hc:InfoElement.Placeholder="服务器端口" Value="{Binding Socks5Port,UpdateSourceTrigger=PropertyChanged}"/>
+        <hc:NumericUpDown Margin="5" Minimum="0" hc:InfoElement.Placeholder="本机端口" Value="{Binding LocalPort,UpdateSourceTrigger=PropertyChanged}"/>
+        <hc:TextBox Margin="5" hc:InfoElement.Placeholder="用户名" Text="{Binding UserName,UpdateSourceTrigger=PropertyChanged}"/>
+        <hc:PasswordBox Margin="5" hc:InfoElement.Placeholder="密码" Name="pwd" ShowEyeButton="True"/>
 
-    <Grid>
-        
-    </Grid>
+        <Button Content="保存" Width="120" Cursor="Hand" Margin="10" Command="{Binding SaveSettingsCommandAsync}"
+                CommandParameter="{Binding ElementName=pwd}"></Button>
+    </StackPanel>
 </Page>
