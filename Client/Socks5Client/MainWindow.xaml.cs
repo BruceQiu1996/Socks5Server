@@ -29,5 +29,20 @@ namespace Socks5Client
         {
             Hide();
         }
+
+        private void NotifyIcon_Click(object sender, RoutedEventArgs e)
+        {
+            Show();
+            WindowState = WindowState.Normal;
+            Topmost = true;
+            var _ = Task.Run(async () =>
+            {
+                await Task.Delay(1000);
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    Topmost = false;
+                });
+            });
+        }
     }
 }

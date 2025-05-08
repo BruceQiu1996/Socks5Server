@@ -39,6 +39,12 @@ namespace Socks5Client
             await host.StartAsync();
             host.Services.GetRequiredService<MainWindow>().Show();
         }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            base.OnExit(e);
+            ServiceProvider!.GetRequiredService<MainPageViewModel>().CloseProxy();
+        }
     }
 
 }

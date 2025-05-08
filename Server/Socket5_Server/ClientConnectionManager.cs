@@ -57,35 +57,42 @@ namespace Socks5_Server
             {
                 while (true)
                 {
-
-                    var datas = _uploadBytes.Select(x =>
+                    try
                     {
-                        return new
+                        var datas = _uploadBytes.Select(x =>
                         {
-                            UserName = x.Key,
-                            AddUploadBytes = x.Value,
-                            AddDownloadBytes = _downloadBytes.ContainsKey(x.Key) ? _downloadBytes[x.Key] : 0
-                        };
-                    });
+                            return new
+                            {
+                                UserName = x.Key,
+                                AddUploadBytes = x.Value,
+                                AddDownloadBytes = _downloadBytes.ContainsKey(x.Key) ? _downloadBytes[x.Key] : 0
+                            };
+                        });
 
-                    if (datas.Count() <= 0
-                        || (datas.All(x => x.AddUploadBytes == 0)
-                        && datas.All(x => x.AddDownloadBytes == 0)))
-                    {
-                        await Task.Delay(5000);
-                        continue;
+                        if (datas.Count() <= 0
+                            || (datas.All(x => x.AddUploadBytes == 0)
+                            && datas.All(x => x.AddDownloadBytes == 0)))
+                        {
+                            await Task.Delay(5000);
+                            continue;
+                        }
+                        var users = await _userService.Value.GetUsersInNamesAsync(datas.Select(x => x.UserName));
+
+                        foreach (var item in datas)
+                        {
+                            users.FirstOrDefault(x => x.UserName == item.UserName).UploadBytes += item.AddUploadBytes;
+                            users.FirstOrDefault(x => x.UserName == item.UserName).DownloadBytes += item.AddDownloadBytes;
+                        }
+
+                        await _userService.Value.BatchUpdateUserAsync(users);
+                        _uploadBytes.Clear();
+                        _downloadBytes.Clear();
                     }
-                    var users = await _userService.Value.GetUsersInNamesAsync(datas.Select(x => x.UserName));
-
-                    foreach (var item in datas)
+                    catch (Exception ex) 
                     {
-                        users.FirstOrDefault(x => x.UserName == item.UserName).UploadBytes += item.AddUploadBytes;
-                        users.FirstOrDefault(x => x.UserName == item.UserName).DownloadBytes += item.AddDownloadBytes;
+                        Console.WriteLine(ex);
                     }
 
-                    await _userService.Value.BatchUpdateUserAsync(users);
-                    _uploadBytes.Clear();
-                    _downloadBytes.Clear();
                     await Task.Delay(5000);
                 }
             });

@@ -14,27 +14,27 @@
         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
             <Button Style="{StaticResource ButtonWarning}"
                     Command="{Binding OpenProxyCommand}" Visibility="{Binding IsRunning,Converter={StaticResource Boolean2VisibilityReConverter}}"
-                    Width="130" Height="40" Cursor="Hand" Margin="0 30 0 0"
+                    Width="220" Height="40" Cursor="Hand" Margin="0 30 0 0"
                 >
                 <Button.Content>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Label BorderThickness="0" Background="Transparent">
+                        <Label BorderThickness="0" Background="Transparent" Padding="0" Margin="0 0 10 0">
                             <Path Data="{StaticResource open}" Height="15" Width="15" Fill="White" Stroke="White" Stretch="Uniform"></Path>
                         </Label>
-                        <TextBlock Text="开启" Margin="15 0 0 0" VerticalAlignment="Center" FontSize="15"></TextBlock>
+                        <TextBlock Text="开启" VerticalAlignment="Center" FontSize="15"></TextBlock>
                     </StackPanel>
                 </Button.Content>
             </Button>
             <Button Style="{StaticResource ButtonDanger}"
                 Command="{Binding CloseProxyCommand}" Visibility="{Binding IsRunning,Converter={StaticResource Boolean2VisibilityConverter}}"
-                Width="130" Height="40" Cursor="Hand" Margin="0 30 0 0"
+                Width="220" Height="40" Cursor="Hand" Margin="0 30 0 0"
             >
                 <Button.Content>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Label BorderThickness="0" Background="Transparent">
-                            <Path Data="{StaticResource open}" Height="15" Width="15" Fill="White" Stroke="White" Stretch="Uniform"></Path>
+                        <Label BorderThickness="0" Background="Transparent" Padding="0" Margin="0 0 10 0">
+                            <Path Data="{StaticResource close}" Height="15" Width="15" Fill="White" Stroke="White" Stretch="Uniform"></Path>
                         </Label>
-                        <TextBlock Text="关闭" Margin="15 0 0 0" VerticalAlignment="Center" FontSize="15"></TextBlock>
+                        <TextBlock Text="关闭" VerticalAlignment="Center" FontSize="15"></TextBlock>
                     </StackPanel>
                 </Button.Content>
             </Button>

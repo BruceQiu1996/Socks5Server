@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Socks5Client.Pages;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Socks5Client.ViewModels
@@ -19,6 +20,7 @@ namespace Socks5Client.ViewModels
 
         public RelayCommand OpenSettingsPageCommand { get; set; }
         public RelayCommand OpenMainPageCommand { get; set; }
+        public RelayCommand ExitCommand { get; set; }
         public MainWindowViewModel(MainPage mainPage,SettingsPage settingsPage)
         {
             _settingsPage = settingsPage;
@@ -31,6 +33,10 @@ namespace Socks5Client.ViewModels
             OpenMainPageCommand = new RelayCommand(() =>
             {
                 CurrentPage = _mainPage;
+            });
+            ExitCommand = new RelayCommand(() =>
+            {
+                Application.Current.Shutdown();
             });
         }
     }

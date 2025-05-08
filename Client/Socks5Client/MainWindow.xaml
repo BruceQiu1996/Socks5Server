@@ -9,6 +9,11 @@
         xmlns:hc="https://handyorg.github.io/handycontrol"
         Style="{StaticResource for_noresize_window}"
         Title="MainWindow" Height="280" Width="450">
+    <Window.Resources>
+        <ContextMenu x:Key="iconMenu" BorderThickness="0">
+            <MenuItem Header="退出软件" Command="{Binding ExitCommand}" Width="150" BorderThickness="0"></MenuItem>
+        </ContextMenu>
+    </Window.Resources>
     <Grid>
         <Border Margin="5" Background="{DynamicResource DefaultBackgroundColor}" CornerRadius="5" Name="render">
             <Border.Effect>
@@ -93,6 +98,14 @@
             <Frame Grid.Column="1" Grid.Row="1" BorderThickness="0 0 0 0" NavigationUIVisibility="Hidden" Content="{Binding CurrentPage}">
 
             </Frame>
+
+            <hc:NotifyIcon Text="Socks5Client" IsBlink="False" 
+                           ToolTip="Socks5Client"
+                           x:Name="icon"
+                           Click="NotifyIcon_Click"
+                           MouseDoubleClick="NotifyIcon_Click"
+                           ContextMenu="{StaticResource iconMenu}"
+                           Visibility="Visible"/>
         </Grid>
     </Grid>
 </Window>
