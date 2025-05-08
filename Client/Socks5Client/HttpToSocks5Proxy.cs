@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
@@ -183,7 +184,14 @@ public class HttpToSocks5Proxy
         if (response[1] != 0x00)
             throw new Exception($"SOCKS5 连接失败 (状态码: {response[1]})");
     }
-
+    
+    /// <summary>
+    /// 解析http请求报文，提取关键信息
+    /// </summary>
+    /// <param name="request">http请求</param>
+    /// <param name="host">请求主机</param>
+    /// <param name="port">请求主机端口号</param>
+    /// <returns>是否解析成功</returns>
     private bool TryParseHttpRequest(string request, out string host, out int port)
     {
         host = null;
@@ -198,10 +206,42 @@ public class HttpToSocks5Proxy
             return true;
         }
 
-        // TODO: 解析 GET/POST 请求（需处理 Host 头）
+        // 2. 处理 GET/POST 请求（HTTP）
+        using (var reader = new StringReader(request))
+        {
+            string line;
+            while ((line = reader.ReadLine()) != null)
+            {
+                // 从 Host 头提取目标
+                if (line.StartsWith("Host:", StringComparison.OrdinalIgnoreCase))
+                {
+                    var hostParts = line.Substring(5).Trim().Split(':');
+                    host = hostParts[0];
+                    if (hostParts.Length > 1)
+                        port = int.Parse(hostParts[1]);
+                    return true;
+                }
+
+                // 空行表示头结束
+                if (string.IsNullOrWhiteSpace(line))
+                    break;
+            }
+        }
+
+        // 3. 旧式HTTP/1.0请求可能没有Host头，从URL解析
+        if (request.StartsWith("GET ") || request.StartsWith("POST "))
+        {
+            var url = request.Split(' ')[1];
+            if (Uri.TryCreate(url, UriKind.Absolute, out var uri))
+            {
+                host = uri.Host;
+                port = uri.Port;
+                return true;
+            }
+        }
+
         return false;
     }
-
 
     private async Task SendHttpResponse(NetworkStream stream, int statusCode, string message)
     {
