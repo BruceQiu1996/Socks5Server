@@ -1,4 +1,4 @@
->一个基于.net 7的高性能socks5代理服务端与客户端
+>一个基于.net 8的高性能socks5代理服务端与客户端
 #### 1.服务端如何使用？
 ##### 1.1 配置服务端
 appsettings.json:
@@ -23,6 +23,7 @@ dotnet ef database update
 ![image](https://github.com/BruceQiu1996/Socks5Server/blob/master/ScreentShots/clientmainpage.jpg)
 ##### 2.2 配置界面
 ![image](https://github.com/BruceQiu1996/Socks5Server/blob/master/ScreentShots/settings.jpg)
+
 服务端代码解释博客:https://www.cnblogs.com/qwqwQAQ/p/17410319.html
 
 
