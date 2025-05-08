@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.Input;
 using System.IO;
 using System.Net;
 using System.Net.Http;
-using System.Security.Principal;
 using System.Text.Json;
 using System.Windows;
 
@@ -20,14 +19,23 @@ namespace Socks5Client.ViewModels
             OpenProxyCommand = new RelayCommand(OpenProxy);
             CloseProxyCommand = new RelayCommand(CloseProxy);
             _httpToSocks5Proxy = new HttpToSocks5Proxy();
+            Upload = "NAN";
+            Download = "NAN";
             _sseService = new SseService();
             _sseService.MessageReceived += (message) =>
             {
                 Application.Current.Dispatcher.Invoke(() =>
                 {
-                    var user = JsonSerializer.Deserialize<UserDto>(message);
-                    Upload = ConvertLongBytesToText(user.uploadBytes);
-                    Download = ConvertLongBytesToText(user.downloadBytes);
+                    var obj = JsonSerializer.Deserialize<JsonElement>(message);
+                    if (obj.TryGetProperty("Up", out JsonElement upElement) && upElement.ValueKind == JsonValueKind.Number)
+                    {
+                        Upload = ConvertLongBytesToText(upElement.GetInt64()); // 12636681
+                    }
+
+                    if (obj.TryGetProperty("Down", out JsonElement downElement) && downElement.ValueKind == JsonValueKind.Number)
+                    {
+                        Download = ConvertLongBytesToText(downElement.GetInt64()); // 12636681
+                    }
                 });
             };
         }
@@ -53,6 +61,9 @@ namespace Socks5Client.ViewModels
             set => SetProperty(ref _download, value);
         }
 
+        /// <summary>
+        /// 开启代理
+        /// </summary>
         private void OpenProxy()
         {
             try
@@ -72,7 +83,7 @@ namespace Socks5Client.ViewModels
                             App.SettingsModel.Password,
                             (int)App.SettingsModel.LocalPort);
 
-                Task.Run(async () => {await Task.Delay(2000); await _sseService.ConnectAsync(App.SettingsModel.Socks5Host, App.SettingsModel.UserName); });
+                Task.Run(async () => {await Task.Delay(500); await _sseService.ConnectAsync(App.SettingsModel.Socks5Host, App.SettingsModel.UserName); });
                 IsRunning = true;
             }
             catch (Exception ex)
@@ -101,6 +112,11 @@ namespace Socks5Client.ViewModels
             }
         }
 
+        /// <summary>
+        /// 流量数字转为文本显示
+        /// </summary>
+        /// <param name="bytes">流量，单位byte</param>
+        /// <returns>显示文本</returns>
         private string ConvertLongBytesToText(long bytes)
         {
             if (bytes < 1024)
@@ -121,17 +137,8 @@ namespace Socks5Client.ViewModels
             }
         }
     }
-    public class UserDto
-    {
-        public string userId { get; set; }
-        public string userName { get; set; }
-        public bool isOnline { get; set; }
-        public long uploadBytes { get; set; }
-        public long downloadBytes { get; set; }
-        public DateTime expireTime { get; set; }
-    }
 
-    //SSE调用
+    //SSE调用显示流量
     public class SseService
     {
         private HttpClient _httpClient;
@@ -144,23 +151,25 @@ namespace Socks5Client.ViewModels
             _httpClient = new HttpClient(new HttpClientHandler
             {
                 Proxy = new WebProxy($"http://{remoteAddress}:5000"), // 明确指定代理
-                UseProxy = true
             });
-            _httpClient.DefaultRequestHeaders.Host = $"{remoteAddress}:5000";
             _cts = new CancellationTokenSource();
 
             try
             {
-                while (true)
+                using var response = await _httpClient
+                    .GetAsync($"http://{remoteAddress}:5000/account/flow/{userName}", HttpCompletionOption.ResponseHeadersRead,_cts.Token);
+                if (response.IsSuccessStatusCode)
                 {
-                    using var response = await _httpClient.GetAsync($"http://{remoteAddress}:5000/account/flow/{userName}", _cts.Token);
-                    if (response.IsSuccessStatusCode)
+                    using var stream = await response.Content.ReadAsStreamAsync();
+                    using var reader = new StreamReader(stream);
+                    while (!_cts.Token.IsCancellationRequested)
                     {
-                        var result = await response.Content.ReadAsStringAsync();
-                        MessageReceived?.Invoke(result);
+                        var line = await reader.ReadLineAsync();
+                        if (!string.IsNullOrEmpty(line))
+                        {
+                            MessageReceived?.Invoke(line);
+                        }
                     }
-
-                    await Task.Delay(2000);
                 }
             }
             catch (Exception ex)

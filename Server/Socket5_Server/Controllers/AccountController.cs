@@ -20,7 +20,7 @@ namespace Socks5_Server.Controllers
         private readonly ILogger<AccountController> _logger;
         private readonly IUserService _userService;
         private readonly ClientConnectionManager _clientConnectionManager;
-
+        private static readonly ConcurrentDictionary<string, StreamWriter> _clients = new();
         public AccountController(IUserService userService,
                                  ClientConnectionManager clientConnectionManager,
                                  ILogger<AccountController> logger)
@@ -142,20 +142,37 @@ namespace Socks5_Server.Controllers
 
         [AllowAnonymous]
         [HttpGet("flow/{username}")]
-        public async Task<ActionResult> Flow(string username)
+        public async Task Flow(string username)
         {
+            // 设置 SSE 响应头
+            Response.Headers.Append("Content-Type", "text/event-stream");
+            Response.Headers.Append("Cache-Control", "no-cache");
+            Response.Headers.Append("Connection", "keep-alive");
+            var clientId = Guid.NewGuid().ToString();
+            var streamWriter = new StreamWriter(Response.Body);
+
+            _clients.TryAdd(clientId, streamWriter);
             try
             {
-                var user = await _userService.FindSingleUserByUserName(username);
-                if (user == null)
-                    return NotFound();
-
-                return Ok(user);
+                while (!HttpContext.RequestAborted.IsCancellationRequested)
+                {
+                    var user = await _userService.FindSingleUserByUserName(username);
+                    if (user != null)
+                    {
+                        await streamWriter.WriteLineAsync(JsonSerializer.Serialize(new 
+                        {
+                            Up = user.UploadBytes,
+                            Down = user.DownloadBytes
+                        }));
+                        await streamWriter.FlushAsync();
+                    }
+                    await Task.Delay(3000);
+                }
             }
-            catch (Exception ex)
+            finally
             {
-                _logger.LogError(ex.ToString());
-                return Problem();
+                _clients.TryRemove(clientId, out _);
+                await streamWriter.DisposeAsync();
             }
         }
     }

@@ -8,7 +8,7 @@
         xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:hc="https://handyorg.github.io/handycontrol"
         Style="{StaticResource for_noresize_window}"
-        Title="MainWindow" Height="300" Width="550">
+        Title="MainWindow" Height="280" Width="450">
     <Grid>
         <Border Margin="5" Background="{DynamicResource DefaultBackgroundColor}" CornerRadius="5" Name="render">
             <Border.Effect>

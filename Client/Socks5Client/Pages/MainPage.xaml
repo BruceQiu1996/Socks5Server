@@ -12,18 +12,43 @@
 
     <hc:Card Margin="5" Effect="{StaticResource EffectShadow5}">
         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-            <Button Content="开启代理" Style="{StaticResource ButtonWarning}"
+            <Button Style="{StaticResource ButtonWarning}"
                     Command="{Binding OpenProxyCommand}" Visibility="{Binding IsRunning,Converter={StaticResource Boolean2VisibilityReConverter}}"
-                    Width="150" Height="40" Cursor="Hand" Margin="0 20 0 0"
-                ></Button>
-            <Button Content="关闭代理" Style="{StaticResource ButtonDanger}"
+                    Width="130" Height="40" Cursor="Hand" Margin="0 30 0 0"
+                >
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Label BorderThickness="0" Background="Transparent">
+                            <Path Data="{StaticResource open}" Height="15" Width="15" Fill="White" Stroke="White" Stretch="Uniform"></Path>
+                        </Label>
+                        <TextBlock Text="开启" Margin="15 0 0 0" VerticalAlignment="Center" FontSize="15"></TextBlock>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
+            <Button Style="{StaticResource ButtonDanger}"
                 Command="{Binding CloseProxyCommand}" Visibility="{Binding IsRunning,Converter={StaticResource Boolean2VisibilityConverter}}"
-                Width="150" Height="40" Cursor="Hand" Margin="0 20 0 0"
-            ></Button>
+                Width="130" Height="40" Cursor="Hand" Margin="0 30 0 0"
+            >
+                <Button.Content>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <Label BorderThickness="0" Background="Transparent">
+                            <Path Data="{StaticResource open}" Height="15" Width="15" Fill="White" Stroke="White" Stretch="Uniform"></Path>
+                        </Label>
+                        <TextBlock Text="关闭" Margin="15 0 0 0" VerticalAlignment="Center" FontSize="15"></TextBlock>
+                    </StackPanel>
+                </Button.Content>
+            </Button>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="50">
                 <hc:Shield Subject="上传流量" Status="{Binding Upload}" Color="#1182c3" Margin="0 0 10 0"/>
                 <hc:Shield Subject="下载流量" Status="{Binding Download}"  Margin="10 0 0 0" Color="#d8624c"/>
             </StackPanel>
+
+            <TextBlock Text="状态 : 代理中" VerticalAlignment="Bottom" Foreground="#aaa"
+                       HorizontalAlignment="Right" Margin="0 0 5 0" Visibility="{Binding IsRunning,Converter={StaticResource Boolean2VisibilityConverter}}"></TextBlock>
+
+
+            <TextBlock Text="状态 : 关闭" VerticalAlignment="Bottom" Foreground="#aaa"
+                       HorizontalAlignment="Right" Margin="0 0 5 0" Visibility="{Binding IsRunning,Converter={StaticResource Boolean2VisibilityReConverter}}"></TextBlock>
         </StackPanel>
     </hc:Card>
 </Page>

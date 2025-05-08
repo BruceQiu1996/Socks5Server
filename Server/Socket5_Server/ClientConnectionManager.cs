@@ -48,6 +48,9 @@ namespace Socks5_Server
             });
         }
 
+        /// <summary>
+        /// 定时持久化保存上传下传流量
+        /// </summary>
         private void LoopUpdateUserFlowrate()
         {
             Task.Run(async () =>

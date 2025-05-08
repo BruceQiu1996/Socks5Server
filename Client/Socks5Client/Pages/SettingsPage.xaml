@@ -15,13 +15,13 @@
         </behaviors:EventTrigger>
     </behaviors:Interaction.Triggers>
     <StackPanel>
-        <hc:TextBox Margin="5 20 5 5" hc:InfoElement.Placeholder="服务器IP" Text="{Binding Socks5Host,UpdateSourceTrigger=PropertyChanged}"/>
+        <hc:TextBox Margin="5 10 5 5" hc:InfoElement.Placeholder="服务器IP" Text="{Binding Socks5Host,UpdateSourceTrigger=PropertyChanged}"/>
         <hc:NumericUpDown Margin="5" Minimum="0" hc:InfoElement.Placeholder="服务器端口" Value="{Binding Socks5Port,UpdateSourceTrigger=PropertyChanged}"/>
         <hc:NumericUpDown Margin="5" Minimum="0" hc:InfoElement.Placeholder="本机端口" Value="{Binding LocalPort,UpdateSourceTrigger=PropertyChanged}"/>
         <hc:TextBox Margin="5" hc:InfoElement.Placeholder="用户名" Text="{Binding UserName,UpdateSourceTrigger=PropertyChanged}"/>
         <hc:PasswordBox Margin="5" hc:InfoElement.Placeholder="密码" Name="pwd" ShowEyeButton="True"/>
 
-        <Button Content="保存" Width="120" Cursor="Hand" Margin="10" Command="{Binding SaveSettingsCommandAsync}"
+        <Button Content="保存" Width="120" Cursor="Hand" Margin="5" Command="{Binding SaveSettingsCommandAsync}"
                 CommandParameter="{Binding ElementName=pwd}"></Button>
     </StackPanel>
 </Page>
