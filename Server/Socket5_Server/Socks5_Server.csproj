@@ -5,6 +5,10 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>disable</Nullable>
+		<PublishSingleFile>true</PublishSingleFile>
+		<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+		<DebugType>embedded</DebugType>
+		<DebugSymbols>true</DebugSymbols>
 		<UserSecretsId>df642ae0-d833-4b7c-90ee-681c6f5bfe73</UserSecretsId>
 	</PropertyGroup>
 

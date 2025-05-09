@@ -37,6 +37,7 @@ namespace Socks5_Server
 
         public static WebApplicationBuilder CreateHostBuilder(string[] args)
         {
+            Environment.SetEnvironmentVariable("SQLite_NoConfigure", "1");
             var hostBuilder = WebApplication.CreateBuilder(args);
             hostBuilder.Host.UseSerilog((context, logger) =>//Serilog
             {
