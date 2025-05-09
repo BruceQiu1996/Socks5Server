@@ -24,6 +24,15 @@ dotnet ef database update
 ##### 2.2 配置界面
 ![image](https://github.com/BruceQiu1996/Socks5Server/blob/master/ScreentShots/settings.jpg)
 
+客户端代码解释博客:https://www.cnblogs.com/qwqwQAQ/p/18867762
 服务端代码解释博客:https://www.cnblogs.com/qwqwQAQ/p/17410319.html
 
+#### 程序架构
 
+```plaintext
+Socks5
+├── 
+│   ├── Client(客户端)
+│   ├── Server(服务端)
+│   └── Server_Client(服务端管理界面，增加用户等)
+```
